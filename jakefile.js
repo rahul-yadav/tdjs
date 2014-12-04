@@ -1,7 +1,7 @@
 /*global desc, task, jake, fail, complete*/
 (function() {
     "use strict";
-
+    desc("Build and test");
     task("default", ["lint"]);
 
     desc("Lint Everything");
@@ -14,7 +14,15 @@
         files.exclude("node_modules");
 
         var options = nodeLintOptions();
-        lint.validateFileList(files.toArray(), options, {});
+        var passed = lint.validateFileList(files.toArray(), options, {});
+        if(!passed) fail("Lint Failed");
+    });
+
+    desc("Integrate");
+
+    task("integrate", ["default"], function(){
+
+        console.log("Integration logic here");
     });
 
 
