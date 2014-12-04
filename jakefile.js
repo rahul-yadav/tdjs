@@ -21,7 +21,7 @@
     desc("Test Everything");
     task("test", [], function(){
         var reporter = require("nodeunit").reporters.default;
-        reporter.run(["test"]);
+        reporter.run(["src/server/_server_test.js"]);
         console.log("Test goes here");
     });
 
