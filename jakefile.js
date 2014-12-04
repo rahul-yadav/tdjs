@@ -2,7 +2,7 @@
 (function() {
     "use strict";
     desc("Build and test");
-    task("default", ["lint"]);
+    task("default", ["lint", "test"]);
 
     desc("Lint Everything");
     task("lint", function () {
@@ -16,6 +16,11 @@
         var options = nodeLintOptions();
         var passed = lint.validateFileList(files.toArray(), options, {});
         if(!passed) fail("Lint Failed");
+    });
+
+    desc("Test Everything");
+    task("test", [], function(){
+        console.log("Test goes here");
     });
 
     desc("Integrate");
