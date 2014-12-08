@@ -3,11 +3,16 @@
 var server = require('./server.js');
 var http = require("http");
 
-exports.tearDown = function(done){
-	server.stop(function(){
-		done();
-	});
-};
+// exports.setUp = function(done){
+// 	server.start(9000);
+// 	done();
+// };
+
+// exports.tearDown = function(done){
+// 	server.stop(function(){
+// 		done();
+// 	});
+// };
 
 
 exports.test_serverReturnsHelloWorld = function(test) {
@@ -18,15 +23,37 @@ exports.test_serverReturnsHelloWorld = function(test) {
 		response.setEncoding("utf8");
 		test.equals(200, response.statusCode, "status code");
 		response.on("data", function(chunk) {
-			// console.log('hi');
-			receivedData = true;
+ 			receivedData = true;
 			test.equals("Hello World", chunk, "response text");
 		});
 
 		response.on("end", function() {
 			test.ok(receivedData, "should have received response data");
-			test.done();
+			server.stop(function(){
+				test.done();
+			});
 		});
 	});
+};
+
+exports.test_serverRequiresPortNumber = function(test) {
+	test.throws(function(){
+		server.start();
+	});
+	test.done();
+};
+
+exports.test_serverRunsCallbackWhenStopCompletes = function(test){
+	server.start(9000);
+	server.stop(function(){
+		test.done();
+	});
+};
+
+exports.test_stopCalledWhenServiceIsntRunningThrowsException = function(test) {
+	test.throws(function(){
+		server.stop();
+	});
+	test.done();
 };
 
