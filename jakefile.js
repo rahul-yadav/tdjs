@@ -5,7 +5,7 @@
     task("default", ["lint", "test"]);
 
     desc("Lint Everything");
-    task("lint", function () {
+    task("lint",["node"], function () {
         var lint = require('./build/lint/lint_runner.js');
 
         var files = new jake.FileList();
@@ -19,7 +19,7 @@
     });
 
     desc("Test Everything");
-    task("test", [], function(){
+    task("test", ["node"], function(){
         var reporter = require("nodeunit").reporters.default;
         reporter.run(["src/server/_server_test.js"], null, function(failures){
                 if(failures){
@@ -38,6 +38,30 @@
 
         console.log("Integration logic here");
     });
+    
+    //desc("Ensure correct version of node is present");
+    task("node",[], function(){
+        var command = "node --version";
+        var stdout = "";
+        var desiredNodeVersion = "v0.10.32\n";
+
+        console.log("> " + command);
+        
+        var process = jake.createExec(command,{printStdout: true, printStderr: true});
+        process.on("stdout", function(chunk){
+            stdout += chunk;
+        });
+
+        process.on('cmdEnd', function(){
+            if(stdout !== desiredNodeVersion) fail("Incorrect node version. Expected " + desiredNodeVersion);
+            console.log("stdout: "+ stdout);
+            complete();
+        });
+        process.run();
+        // jake.exec(command, function(){
+        //     complete();
+        // },{printStdout: true, printStderr: true});
+    },{async: true});
 
 
     function nodeLintOptions() {
