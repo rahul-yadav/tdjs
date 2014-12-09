@@ -41,28 +41,34 @@
     
     //desc("Ensure correct version of node is present");
     task("node",[], function(){
-        var command = "node --version";
-        var stdout = "";
-        var desiredNodeVersion = "v0.10.32\n";
+        
+        var NODE_VERSION = "v0.10.32\n";
 
+        sh("node --version", function(stdout){
+            if(stdout !== NODE_VERSION) fail("Incorrect node version. Expected " + NODE_VERSION);
+            complete();
+        });
+    },{async: true});
+
+    function sh(command, callback){
         console.log("> " + command);
         
+        var stdout = "";
         var process = jake.createExec(command,{printStdout: true, printStderr: true});
         process.on("stdout", function(chunk){
             stdout += chunk;
         });
 
         process.on('cmdEnd', function(){
-            if(stdout !== desiredNodeVersion) fail("Incorrect node version. Expected " + desiredNodeVersion);
-            console.log("stdout: "+ stdout);
-            complete();
+           callback(stdout);
         });
         process.run();
+
+        //Simple command run without stdOut
         // jake.exec(command, function(){
         //     complete();
         // },{printStdout: true, printStderr: true});
-    },{async: true});
-
+    }
 
     function nodeLintOptions() {
         return {
