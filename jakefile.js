@@ -1,11 +1,22 @@
-/*global desc, task, jake, fail, complete*/
+/*global desc, task, jake, fail, complete, directory*/
 (function() {
     "use strict";
+    var NODE_VERSION = "v0.10.32\n";
+    var GENERATED_DIR = "generated";
+    var TEMP_TESTFILE_DIR = GENERATED_DIR + "/test";
+
+    directory(TEMP_TESTFILE_DIR);
+    
+    desc("Delete all generated files");
+    task("clean", [], function(){
+        jake.rmRf("generated");
+    });
+
     desc("Build and test");
     task("default", ["lint", "test"]);
 
     desc("Lint Everything");
-    task("lint",["node"], function () {
+    task("lint",["nodeVersion"], function () {
         var lint = require('./build/lint/lint_runner.js');
 
         var files = new jake.FileList();
@@ -19,7 +30,7 @@
     });
 
     desc("Test Everything");
-    task("test", ["node"], function(){
+    task("test", ["nodeVersion", TEMP_TESTFILE_DIR], function(){
         var reporter = require("nodeunit").reporters.default;
         reporter.run(["src/server/_server_test.js"], null, function(failures){
                 if(failures){
@@ -40,9 +51,9 @@
     });
     
     //desc("Ensure correct version of node is present");
-    task("node",[], function(){
+    task("nodeVersion",[], function(){
         
-        var NODE_VERSION = "v0.10.32\n";
+        
 
         sh("node --version", function(stdout){
             if(stdout !== NODE_VERSION) fail("Incorrect node version. Expected " + NODE_VERSION);
