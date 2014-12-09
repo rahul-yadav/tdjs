@@ -67,6 +67,10 @@ exports.test_serverServesAFile = function(test) {
 	});
 };
 
+exports.test_serverReturns404ForEverythingExceptHomepage = function(test) {
+
+};
+
 exports.test_serverRequiresFileToServe = function(test) {
 	test.throws(function() {
 		server.start();
