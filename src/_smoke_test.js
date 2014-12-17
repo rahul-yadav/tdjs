@@ -5,8 +5,10 @@
 (function() {
 	"use strict";
 	var child_process = require("child_process");
+	var fs = require("fs");
 	var http = require("http");
 	var child = null;
+	var PORT_NUMBER = "5000";
 
 	exports.setUp = function(done){
 		runServer(done);
@@ -20,7 +22,7 @@
 	};
 
 	exports.test_canGetHomePage = function(test) {
-		httpGet("http://localhost:8080", function(response, receivedData){
+		httpGet("http://localhost:"+ PORT_NUMBER, function(response, receivedData){
 			console.log("inside callback");
 			var foundHomePageFile = receivedData.indexOf("WeeWikiPaint home page")!== -1;
 		 	test.ok(foundHomePageFile, "home page should contain weewikipaint marker");
@@ -29,8 +31,7 @@
 	};
 
 	exports.test_canGet404Page = function(test){
-		httpGet("http://localhost:8080/nonExistant.html", function(response, receivedData){
-			console.log("inside callback");
+		httpGet("http://localhost:"+ PORT_NUMBER + "/nonExistant.html", function(response, receivedData){
 			var foundHomePageFile = receivedData.indexOf("WeeWikiPaint 404 page")!== -1;
 		 	test.ok(foundHomePageFile, "404 page shoudl have contained test marker");
 		 	test.done();
@@ -38,7 +39,8 @@
 	};
 
 	function runServer(callback) {
-		child = child_process.spawn("node", ["src/server/weewikipaint", "8080"]);
+		var commandLine = parseProcFile();
+		child = child_process.spawn(commandLine.command, commandLine.options);
 		child.stdout.setEncoding("utf8");
 		child.stdout.on("data", function(chunk){
 			if(chunk.trim() === "Server started") callback();
@@ -57,10 +59,22 @@
 
 			response.on("end", function() {
 				callback(response, receivedData);
-				// server.stop(function(){
-				// });
 			});
 		});
+	}
+
+	function parseProcFile(){
+		var procfile = require('procfile');
+		var file = fs.readFileSync("Procfile", "utf8");
+		var parsed = procfile.parse(file);
+		var web = parsed.web;
+		web.options = web.options.map(function(element){
+			if(element === "$PORT"){
+				return PORT_NUMBER;	
+			} 
+			return element;
+		});
+		return web;
 	}
 
 }());
