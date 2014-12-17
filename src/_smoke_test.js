@@ -7,6 +7,7 @@
 	var child_process = require("child_process");
 	var fs = require("fs");
 	var http = require("http");
+	var procfile = require('procfile');
 	var child = null;
 	var PORT_NUMBER = "5000";
 
@@ -64,17 +65,15 @@
 	}
 
 	function parseProcFile(){
-		var procfile = require('procfile');
-		var file = fs.readFileSync("Procfile", "utf8");
-		var parsed = procfile.parse(file);
-		var web = parsed.web;
-		web.options = web.options.map(function(element){
+		var fileData = fs.readFileSync("Procfile", "utf8");
+		var webCommand = procfile.parse(fileData).web;
+		webCommand.options = webCommand.options.map(function(element){
 			if(element === "$PORT"){
 				return PORT_NUMBER;	
 			} 
 			return element;
 		});
-		return web;
+		return webCommand;
 	}
 
 }());
